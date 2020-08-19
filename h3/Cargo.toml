@@ -8,3 +8,4 @@ edition = "2018"
 h3-sys = { path = "../h3-sys" }
 geo-types = "0.4.0"
 log = "0.4.8"
+serde = { version = "1.0", features = ["derive"] }

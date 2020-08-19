@@ -12,6 +12,7 @@ use rusqlite::{Connection, ToSql};
 use rusqlite::{NO_PARAMS, OptionalExtension};
 #[cfg(feature = "sqlite")]
 use rusqlite::types::ToSqlOutput;
+use serde::{Serialize, Deserialize};
 
 use h3::{get_resolution, h3_to_string};
 use h3::stack::IndexStack;
@@ -23,6 +24,7 @@ use std::cmp::max;
 pub type Attributes = Vec<Option<Value>>;
 pub type GroupedH3Indexes = HashMap<Attributes, IndexStack>;
 
+#[derive(Serialize, Deserialize)]
 pub struct ConvertedRaster {
     pub value_types: Vec<Value>,
     pub indexes: GroupedH3Indexes,

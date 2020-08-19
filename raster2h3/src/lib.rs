@@ -11,6 +11,7 @@ use h3_raster::input::{ClassifiedBand, NoData, Value};
 use h3_raster::rasterconverter::{ConversionProgress, RasterConverter};
 use h3_raster::tile::{generate_tiles, tile_size_from_rasterband};
 use h3_util::progress::{Progress, ApplyProgress};
+use std::fs::File;
 
 fn parse_u32(arg: &str, name: &str) -> Result<u32, String> {
     match arg.parse::<u32>() {
@@ -110,7 +111,7 @@ pub struct TopLevelArguments {
     bands: BandArguments,
 
     #[argh(subcommand)]
-    pub(crate) subcommand: Subcommands,
+    pub subcommand: Subcommands,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -118,6 +119,7 @@ pub struct TopLevelArguments {
 pub enum Subcommands {
     ToOgr(ToOgrArguments),
     ToSqlite(ToSqliteArguments),
+    ToBincode(ToBincodeArguments),
 }
 
 fn default_output_format() -> String {
@@ -162,6 +164,19 @@ pub struct ToSqliteArguments {
     #[argh(option, short = 't', default = "default_output_table_name()")]
     /// name of the output database table
     output_table_name: String,
+}
+
+#[derive(FromArgs, PartialEq, Debug)]
+/// convert to a bincode dataset
+#[argh(subcommand, name = "to-bincode")]
+pub struct ToBincodeArguments {
+    #[argh(option, short = 'o')]
+    /// output bincode file
+    output_file: String,
+
+    #[argh(switch, short = 'z')]
+    /// gzip the output
+    gzip: bool,
 }
 
 
@@ -322,3 +337,21 @@ pub fn convert_to_sqlite(top_level_args: &TopLevelArguments, to_sqlite_args: &To
     })
 }
 
+pub fn convert_to_bincode(top_level_args: &TopLevelArguments, to_bincode_args: &ToBincodeArguments) -> Result<(), &'static str> {
+    let converted_raster = convert_raster(top_level_args)?;
+
+    let f: File = match File::create(&to_bincode_args.output_file) {
+        Ok(f) => f,
+        Err(e) => {
+            log::error!("unable to create file: {:?}", e);
+            return Err("could not create file")
+        }
+    };
+    match h3_util::bincode::serialize_into(f, &converted_raster, to_bincode_args.gzip) {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            log::error!("serialization failed: {:?}", e);
+            Err("serialization failed")
+        }
+    }
+}
