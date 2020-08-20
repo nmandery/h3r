@@ -5,7 +5,7 @@ static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 mod lib;
 
-use crate::lib::{TopLevelArguments, convert_to_ogr, Subcommands, convert_to_sqlite, convert_to_bincode};
+use crate::lib::{TopLevelArguments, convert_to_ogr, Subcommands, convert_to_sqlite};
 
 fn main() {
     simple_logger::init().unwrap();
@@ -18,9 +18,6 @@ fn main() {
         Subcommands::ToSqlite(to_sqlite_args) => {
            convert_to_sqlite(&args, to_sqlite_args)
         },
-        Subcommands::ToBincode(to_bincode_args) => {
-            convert_to_bincode(&args, to_bincode_args)
-        }
     };
 
     if let Err(msg) = result {

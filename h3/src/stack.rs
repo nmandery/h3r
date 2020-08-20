@@ -2,7 +2,6 @@ use std::collections::{HashMap, HashSet};
 use crate::get_resolution;
 use std::os::raw::c_int;
 use h3_sys::H3Index;
-use serde::{Serialize, Deserialize};
 
 pub fn compact(h3_indexes: &[H3Index]) -> Vec<H3Index> {
     let mut h3_indexes_out: Vec<H3Index> = vec![0; h3_indexes.len()];
@@ -34,7 +33,6 @@ pub fn compact_mixed(h3_indexes: &[H3Index]) -> Vec<H3Index> {
 /// adding of further indexes
 ///
 /// TODO: custom iterator
-#[derive(Debug, Serialize, Deserialize)]
 pub struct IndexStack {
     pub indexes_by_resolution: HashMap<u8, Vec<H3Index>>,
 }
